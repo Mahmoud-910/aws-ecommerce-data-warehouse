@@ -1,0 +1,7 @@
+*.pem
+*.key
+.env
+.env.*
+credentials*
+__pycache__/
+.ipynb_checkpoints/
