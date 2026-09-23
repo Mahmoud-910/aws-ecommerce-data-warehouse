@@ -7,6 +7,165 @@
 --   fact_customer_sales = one customer per day
 --   fact_product_sales  = one product per day
 -- ============================================================
+SELECT COUNT(*) AS row_count
+FROM ecommerce_processed_catalog.fact_order_detail;
+
+SELECT COUNT(*) AS row_count
+FROM ecommerce_processed_catalog.fact_order;
+
+SELECT
+    MIN(order_id) AS min_order_id,
+    MAX(order_id) AS max_order_id,
+    COUNT(DISTINCT order_id) AS distinct_orders
+FROM ecommerce_processed_catalog.fact_order
+WHERE order_id BETWEEN 50001 AND 50003;
+
+SELECT
+    SUM(net_sales) AS total_sales,
+    COUNT(DISTINCT order_id) AS total_orders,
+    COUNT(DISTINCT customer_key) AS total_customers,
+    COUNT(DISTINCT product_key) AS total_products,
+    SUM(quantity) AS total_quantity_sold,
+    SUM(profit) AS total_profit
+FROM fact_order_detail;
+
+
+SELECT
+    d.year,
+    d.month,
+    d.month_name,
+    SUM(f.net_sales) AS sales,
+    COUNT(DISTINCT f.order_id) AS orders,
+    SUM(f.quantity) AS quantity,
+    SUM(f.profit) AS profit
+FROM fact_order_detail f
+JOIN dim_date d
+    ON f.date_key = d.date_key
+GROUP BY
+    d.year,
+    d.month,
+    d.month_name
+ORDER BY
+    d.year,
+    d.month;
+
+SELECT
+    d."year",
+    d."month",
+    d.month_name,
+    SUM(f.net_sales) AS sales,
+    COUNT(DISTINCT f.order_id) AS orders,
+    SUM(f.quantity) AS quantity,
+    SUM(f.profit) AS profit
+FROM fact_order_detail f
+JOIN dim_date d
+    ON f.date_key = d.date_key
+GROUP BY
+    d."year",
+    d."month",
+    d.month_name
+ORDER BY
+    d."year",
+    d."month";
+
+SELECT
+    c.category_id,
+    c.category_name,
+    SUM(f.net_sales) AS total_sales,
+    SUM(f.quantity) AS total_quantity,
+    SUM(f.profit) AS total_profit,
+    COUNT(DISTINCT f.order_id) AS order_count
+FROM fact_order_detail f
+JOIN dim_product p
+    ON f.product_key = p.product_key
+JOIN dim_category c
+    ON p.category_key = c.category_key
+GROUP BY
+    c.category_id,
+    c.category_name
+ORDER BY
+    total_sales DESC;
+
+SELECT
+    p.product_id,
+    p.product_name,
+    p.brand,
+    SUM(f.net_sales) AS total_sales,
+    SUM(f.quantity) AS total_quantity,
+    SUM(f.profit) AS total_profit,
+    COUNT(DISTINCT f.order_id) AS order_count
+FROM fact_order_detail f
+JOIN dim_product p
+    ON f.product_key = p.product_key
+GROUP BY
+    p.product_id,
+    p.product_name,
+    p.brand
+ORDER BY
+    total_sales DESC;
+
+SELECT
+    c.customer_id,
+    c.full_name,
+    c.country,
+    c.city,
+    SUM(f.net_sales) AS total_sales,
+    SUM(f.quantity) AS total_quantity,
+    SUM(f.profit) AS total_profit,
+    COUNT(DISTINCT f.order_id) AS order_count
+FROM fact_order_detail f
+JOIN dim_customer c
+    ON f.customer_key = c.customer_key
+GROUP BY
+    c.customer_id,
+    c.full_name,
+    c.country,
+    c.city
+ORDER BY
+    total_sales DESC;
+
+
+
+
+SELECT
+    p.product_id,
+    p.product_name,
+    p.brand,
+    SUM(f.net_sales) AS total_sales,
+    SUM(f.quantity) AS quantity_sold,
+    SUM(f.profit) AS total_profit,
+    COUNT(DISTINCT f.order_id) AS order_count
+FROM fact_order_detail f
+JOIN dim_product p
+    ON f.product_key = p.product_key
+GROUP BY
+    p.product_id,
+    p.product_name,
+    p.brand
+ORDER BY
+    total_sales DESC
+LIMIT 10;
+
+
+SELECT
+    c.customer_id,
+    c.full_name,
+    c.country,
+    c.city,
+    SUM(f.net_sales) AS total_spending,
+    COUNT(DISTINCT f.order_id) AS order_count
+FROM fact_order_detail f
+JOIN dim_customer c
+    ON f.customer_key = c.customer_key
+GROUP BY
+    c.customer_id,
+    c.full_name,
+    c.country,
+    c.city
+ORDER BY
+    total_spending DESC
+LIMIT 10;
+
 
 -- Task 29: Overall KPIs
 -- Use fact_order_detail for line-level sales and quantity.
